@@ -4,20 +4,27 @@ import "./WeatherApp.css";
 export const WeatherApp = () => {
 
     const [city, setCity] = useState("");
-    const [loading, setLoading] = useState(false)
     const [weatherData, setWeatherData] = useState(null)
+    const [error, setError] = useState(null)
+    const [loading, setLoading] = useState(false)
 
     const urlBase = `https://api.openweathermap.org/data/2.5/weather`;
     const API_KEY = '<YOUR-APIKEY-GOES-HERE>';
 
     const fetchWeatherData = async () => {
         setLoading(true)
+        setWeatherData(null)
+        setError(null)
         try {
             const response = await fetch(`${urlBase}?q=${city}&appid=${API_KEY}&units=metric&lang=es`)
             const data = await response.json()
-            setWeatherData(data)
+            if(response.ok) {
+                setWeatherData(data)
+            } else {
+                setError(data.message)
+            }
         } catch (error) {
-            console.error('Ocurrió un error: ', error)
+            setError(error.message)
         }
         setLoading(false)
     }
@@ -28,6 +35,7 @@ export const WeatherApp = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        if(city.trim() == '') return
         fetchWeatherData()
     }
 
@@ -43,9 +51,14 @@ export const WeatherApp = () => {
                         onChange={handleCityChange}
                         autoFocus
                     />
-                    <button type="submit" aria-busy={loading}>Buscar</button>
+                    <button type="submit">Buscar</button>
                 </fieldset>
             </form>
+            {loading && (
+                <article>
+                    <span aria-busy="true">{'Buscando ciudad...'}</span>
+                </article>
+            )}
             {weatherData && (
                 <article>
                     <h2>{weatherData.name}, {weatherData.sys.country}</h2>
@@ -55,6 +68,11 @@ export const WeatherApp = () => {
                     <img src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} alt={weatherData.weather.map(w => w.description).join()}></img>
                 </article>
             )}
-        </div>
+            {error && (
+                <article>
+                    <span>{error}</span>
+                </article>
+            )}
+        </div >
     );
 };
