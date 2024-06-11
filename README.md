@@ -8,7 +8,7 @@
  
 ## Description
 
-[React](https://angular.io/) project to visualize the weather
+[React](https://react.dev/) project to visualize the weather
 
 ## Installation
 
